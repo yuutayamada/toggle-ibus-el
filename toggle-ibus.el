@@ -25,6 +25,7 @@
 ;;
 ;;; Code:
 
+(require 'cl-lib)
 (defun tibus-get-engines ()
   (mapcar
    (lambda (str) (substring str 0 (1- (length str))))
@@ -40,20 +41,18 @@
 (defvar tibus-after-toggle-hook nil)
 
 (defun tibus-set-engine (engine)
-  "Set engine to ENGINE."
-  (unless (equal engine tibus-toggle-state)
-    (call-process-shell-command
-     (format "ibus engine %s &" engine))
-    (setq tibus-toggle-state engine)))
+  "Set ibus engine to ENGINE."
+  (cl-destructuring-bind (primary _secondary) (tibus-get-engines)
+    (unless (equal engine primary)
+      (call-process-shell-command
+       (format "ibus engine %s &" engine))
+      (setq tibus-toggle-state engine))))
 
 ;;;###autoload
-(defun tibus-toggle (&optional primary secondary)
-  "Toggle ibus between PRIMARY and SECONDARY."
+(defun tibus-toggle (&optional engine)
   (interactive)
-  (let ((primary   (or primary   (nth 0 tibus-engines)))
-        (secondary (or secondary (nth 1 tibus-engines))))
-    (tibus-set-engine
-     (if (eq secondary tibus-toggle-state) primary secondary)))
+  (cl-destructuring-bind (_primary secondary) (tibus-get-engines)
+    (tibus-set-engine (or engine secondary)))
   (run-hooks 'tibus-after-toggle-hook))
 
 (provide 'toggle-ibus)
