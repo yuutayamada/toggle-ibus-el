@@ -40,6 +40,7 @@
 (defvar tibus-toggle-state (car tibus-engines))
 (defvar tibus-after-toggle-hook nil)
 
+;;;###autoload
 (defun tibus-set-engine (engine)
   "Set ibus engine to ENGINE."
   (cl-destructuring-bind (primary _secondary) (tibus-get-engines)
